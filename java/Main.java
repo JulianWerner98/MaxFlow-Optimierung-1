@@ -16,6 +16,12 @@ public static Integer max_flow(
 	Integer         t,    
  	Vector<Integer> f )   
 {
+
+    Digraph residual_net = new Digraph();
+    Vector<Integer> residual_capacity = new Vector<Integer>();
+    create_residual_net(D, u, f, residual_net, residual_capacity);
+
+
   //-----------------------
   // TO DO: This method has to be implemented. 
   //
@@ -35,7 +41,7 @@ public static Integer max_flow(
   System.out.println("Source node:      " + s );
   System.out.println("Target node:      " + t );
 	
-  // Show arcs with with capacities
+  // Show arcs with capacities
   for ( int e=0; e < D.getNumberOfArcs(); ++e ) {
      System.out.println( "Bogen " + e + " : ("+ D.getSource(e) + "," + D.getTarget(e) + 
                          ")  Kapazitaet: " + u.get(e) );
@@ -59,35 +65,35 @@ public static Integer max_flow(
   //--------------------
 
 
-   
+
    //-----------------
    // A simple BFS path search starting at s could be implemented using the following scheme:
    //-----------------
-   
-   // build a queue Q that holds the nodes already reached, but whose in- and out-arcs 
-   // have not been scanned yet  
+
+   // build a queue Q that holds the nodes already reached, but whose in- and out-arcs
+   // have not been scanned yet
    Deque<Integer>   Q    = new LinkedList<Integer>();
 
    // Build vector pred, that contains for each node v
    // the id of its predecessor-arc if v has been reached or
    // a special tag (f.e. just a negativ value) if v has not been reached yet.
    // Initialize this vector to all nodes unreached.
-   Vector<Integer>  pred = new Vector<Integer>();                                                       
+   Vector<Integer>  pred = new Vector<Integer>();
    pred.setSize(D.getNumberOfNodes());
    for ( int v = 0; v < D.getNumberOfNodes(); ++v ) {
      pred.set(v,-2);
    }
-    
+
 
    // Start the BFS at s
    Q.add(s);
-   pred.set(s,s); // just any positive value, pred[s] will not be used in backtracking 
+   pred.set(s,s); // just any positive value, pred[s] will not be used in backtracking
 
    // Process all nodes that have been reached in this order
    while ( ! Q.isEmpty() ) {
      // v is current node, remove it from queue
      Integer v = Q.poll();
-		
+
      // scan v'out arcs
      for ( int a: D.getOutArcs(v) ) {
         // w is other end of a, i.e. target of a if a is outarc of v
@@ -103,22 +109,22 @@ public static Integer max_flow(
 
       // TO DO: you should also scan the inarcs of v and if ....
     }
-	
+
     //--------
-    // This is the end of the BFS. 
-    // We now can check if t has been reached and, if so, backtrack the path 
-    // (in reverse direction from t to s) via the pred-arcs. 
+    // This is the end of the BFS.
+    // We now can check if t has been reached and, if so, backtrack the path
+    // (in reverse direction from t to s) via the pred-arcs.
     // (Note that the path should traverse those arcs in reverse direction,
-    // that are have been scanned in reverse direction (scanned as inarc of v above)  
+    // that are have been scanned in reverse direction (scanned as inarc of v above)
     //--------
 
     // if t has been reached
     if ( pred.get(t) >= 0 ) {
-        
+
         // Just for illustration, the path is created as list of its arcs.
-        // In a flow algorithm, you do not need to explicitly build the path just to iterate over its edges later.... 
+        // In a flow algorithm, you do not need to explicitly build the path just to iterate over its edges later....
         LinkedList<Integer> path = new LinkedList<Integer>();
-        
+
         // create path by backtracking predecessors, starting at t,
         // until s is reached
         Integer v = t;
@@ -139,12 +145,52 @@ public static Integer max_flow(
         while ( ! path.isEmpty() ) {
             System.out.println("path contains arc " + path.poll() );
         }
-        
+
     }
 
 
    // TO DO: you should return the computed max flow value here
    return 0;
+}
+
+public static void create_residual_net(Digraph graph, Vector<Integer> capacity, Vector<Integer> flow, Digraph residual_net, Vector<Integer> residual_capacity){
+
+    System.out.println("Create Residual Network");
+
+    for (int i = 0; i < graph.getNumberOfNodes(); i++){
+        residual_net.addNode();}
+
+    for (int j = 0; j < graph.getNumberOfNodes(); j++){
+
+        residual_net.addNode();
+
+        Vector<Integer> out_arcs = graph.getOutArcs(j);
+
+        for (int k = 0; k < out_arcs.size(); k++){
+
+            if (capacity.get(out_arcs.get(k)) - flow.get(out_arcs.get(k)) > 0){
+                int new_arc = residual_net.addArc(j, graph.getTarget(out_arcs.get(k)));
+                residual_capacity.add(new_arc, capacity.get(out_arcs.get(k)) - flow.get(out_arcs.get(k)));
+            }
+
+            if (flow.get(out_arcs.get(k)) > 0) {
+                int new_back_arc = residual_net.addArc(graph.getTarget(out_arcs.get(k)), j);
+                residual_capacity.add(new_back_arc, flow.get(out_arcs.get(k)));
+            }
+
+        }
+
+    }
+
+}
+
+public static void bfs(Digraph residual_graph, Integer s, Integer t){
+
+
+
+
+
+
 }
 
 
