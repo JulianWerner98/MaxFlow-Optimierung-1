@@ -46,10 +46,22 @@ public static Integer max_flow(
                 }
             }
             else{
+                int counter = 0;
                 for (var org_edge : D.getOutArcs(target)){
 
                     if (D.getTarget(org_edge) == source){
+
+                        //TEST
+                        if (f.get(org_edge)-bottleneck < 0){
+                            System.out.println("___");
+                            System.out.println(f.get(org_edge)-bottleneck);
+                            System.out.println(f.get(org_edge));
+                            System.out.println(bottleneck);
+
+                        }
+
                         f.set(org_edge, f.get(org_edge)-bottleneck);
+
                     }
                 }
             }
@@ -67,88 +79,52 @@ public static Integer max_flow(
         max_flow += f.get(arc);
     }
 
+    //test print
+    int outflow = 0;
+    Vector<Integer> s_out = D.getOutArcs(s);
+    for (var a : s_out){
+        outflow += f.get(a);
+    }
+    System.out.println(outflow);
 
-    //-----------------------
-  // TO DO: This method has to be implemented. 
-  //
-  // The current code fragments within this method are only 
-  // to illustrate the use of the data structures and 
-  // to provide an example for an BFS (using only forward arcs in the residual network) 
-  // and the reconstruction of the path found by the BFS
-  //------------------------
+    int inflow = 0;
+    Vector<Integer> t_in = D.getInArcs(t);
+    for (var b : t_in){
+        inflow += f.get(b);
+    }
+    System.out.println(inflow);
 
-  //--------------------
-  // The following block just prints the network, the capacities
-  // and the out arcs of each node
-  //--------------------
-
-  System.out.println("Anzahl Knoten:    " + D.getNumberOfNodes() );
-  System.out.println("Anzahl Boegen:    " + D.getNumberOfArcs() );
-  System.out.println("Source node:      " + s );
-  System.out.println("Target node:      " + t );
-	
-  // Show arcs with capacities
-  for ( int e=0; e < D.getNumberOfArcs(); ++e ) {
-     System.out.println( "Bogen " + e + " : ("+ D.getSource(e) + "," + D.getTarget(e) + 
-                         ")  Kapazitaet: " + u.get(e) );
-  }
-
-  // Show all out-arcs of each node (in arcs are available analogously via D.getInArcs(v))
-  for ( int v = 0; v < D.getNumberOfNodes(); ++v ) {
-     for ( int e: D.getOutArcs(v) ) {
-	System.out.println("Knoten " + v + "  Aus-Bogen " +
-			    e + " (" + D.getSource(e) + "," + D.getTarget(e) +")" );
-     }        	 
-  }
-         
-  //--------------------
-  // TO DO: 
-  // If you implement FF-Algorithm, then you should augment the flow iteratively augment 
-  // the flow f in a main loop. 
-  // Within this loop, you need to search for s-t-paths in the "residual network", i.e. paths
-  // that traverse arcs with positive residual capacity in the forward direction and arcs
-  // with positive flow in the backwards direction. 
-  //--------------------
-
-
-
-
-
-
-   // TO DO: you should return the computed max flow value here
    return max_flow;
 }
 
-public static void create_residual_net(Digraph graph, Vector<Integer> capacity, Vector<Integer> flow, Digraph residual_net, Vector<Integer> residual_capacity){
+public static void create_residual_net(Digraph D, Vector<Integer> u, Vector<Integer> f, Digraph residual_net, Vector<Integer> residual_capacity){
 
     residual_net.clear();
     residual_capacity.clear();
 
-    for (int i = 0; i < graph.getNumberOfNodes(); i++){
+    for (int i = 0; i < D.getNumberOfNodes(); i++){
         residual_net.addNode();}
 
-    for (int j = 0; j < graph.getNumberOfNodes(); j++){
+    for (int j = 0; j < D.getNumberOfNodes(); j++){
 
-        residual_net.addNode();
 
-        Vector<Integer> out_arcs = graph.getOutArcs(j);
+        Vector<Integer> out_arcs = D.getOutArcs(j);
 
-        for (int k = 0; k < out_arcs.size(); k++){
+        for (Integer out_arc : out_arcs) {
 
-            if (capacity.get(out_arcs.get(k)) - flow.get(out_arcs.get(k)) > 0){
-                int new_arc = residual_net.addArc(j, graph.getTarget(out_arcs.get(k)));
-                residual_capacity.add(new_arc, capacity.get(out_arcs.get(k)) - flow.get(out_arcs.get(k)));
+            // capacity left
+            if (u.get(out_arc) - f.get(out_arc) > 0) {
+                int new_arc = residual_net.addArc(j, D.getTarget(out_arc));
+                residual_capacity.add(new_arc, u.get(out_arc) - f.get(out_arc));
             }
 
-            if (flow.get(out_arcs.get(k)) > 0) {
-                int new_back_arc = residual_net.addArc(graph.getTarget(out_arcs.get(k)), j);
-                residual_capacity.add(new_back_arc, -flow.get(out_arcs.get(k)));
+            //flow present
+            if (f.get(out_arc) > 0) {
+                int new_back_arc = residual_net.addArc(D.getTarget(out_arc), j);
+                residual_capacity.add(new_back_arc, -f.get(out_arc));
             }
-
         }
-
     }
-
 }
 
 public static LinkedList<Integer> bfs(Digraph residual_graph, Integer s, Integer t){
@@ -218,10 +194,16 @@ public static LinkedList<Integer> bfs(Digraph residual_graph, Integer s, Integer
         // create path by backtracking predecessors, starting at t,
         // until s is reached
         Integer v = t;
-        while ( v != s ) {
+        while (!Objects.equals(v, s)) {
             Integer a = pred.get(v);
             // if arc was forward arc
-            if ( residual_graph.getTarget(a) == v ) {
+            if(!v.equals(residual_graph.getTarget(a))){
+                System.out.println("---");
+                System.out.println(v);
+                System.out.println(residual_graph.getTarget(a));
+
+            }
+            if (Objects.equals(residual_graph.getTarget(a), v)) {
                 path.add(a);
                 v=residual_graph.getSource(a);
             }
