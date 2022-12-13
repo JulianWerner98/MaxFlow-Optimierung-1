@@ -46,19 +46,9 @@ public static Integer max_flow(
                 }
             }
             else{
-                int counter = 0;
                 for (var org_edge : D.getOutArcs(target)){
 
                     if (D.getTarget(org_edge) == source){
-
-                        //TEST
-                        if (f.get(org_edge)-bottleneck < 0){
-                            System.out.println("___");
-                            System.out.println(f.get(org_edge)-bottleneck);
-                            System.out.println(f.get(org_edge));
-                            System.out.println(bottleneck);
-
-                        }
 
                         f.set(org_edge, f.get(org_edge)-bottleneck);
 
@@ -78,21 +68,6 @@ public static Integer max_flow(
 
         max_flow += f.get(arc);
     }
-
-    //test print
-    int outflow = 0;
-    Vector<Integer> s_out = D.getOutArcs(s);
-    for (var a : s_out){
-        outflow += f.get(a);
-    }
-    System.out.println(outflow);
-
-    int inflow = 0;
-    Vector<Integer> t_in = D.getInArcs(t);
-    for (var b : t_in){
-        inflow += f.get(b);
-    }
-    System.out.println(inflow);
 
    return max_flow;
 }
@@ -173,7 +148,6 @@ public static LinkedList<Integer> bfs(Digraph residual_graph, Integer s, Integer
             }
         }
 
-        // TO DO: you should also scan the inarcs of v and if ....
     }
 
     //--------
@@ -213,14 +187,6 @@ public static LinkedList<Integer> bfs(Digraph residual_graph, Integer s, Integer
             }
         }
 
-        // and just for fun, we print the edges of the path (removing them from the path immediately) ...
-        /*System.out.println("Path length " + path.size() );
-        while ( ! path.isEmpty() ) {
-            System.out.println(residual_graph.getTarget(path.getFirst()));
-            System.out.println(residual_graph.getSource(path.getFirst()));
-            System.out.println("path contains arc " + path.poll() );
-        }*/
-
         return path;
 
     }
@@ -229,9 +195,6 @@ public static LinkedList<Integer> bfs(Digraph residual_graph, Integer s, Integer
     }
 
 }
-
-
-
 
 //----------- 
 public static void main(String[] args) {
@@ -275,4 +238,4 @@ public static void main(String[] args) {
       }
 
    }
-};
+}
